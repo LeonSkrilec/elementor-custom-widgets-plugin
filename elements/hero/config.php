@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Kranjska_gora_hero extends Widget_Base {
 
 	public function get_name() {
-		return WIDGETS_CATEGORY_KEY.'hero';
+		return 'hero';
 	}
 
 	public function get_title() {
@@ -23,13 +23,17 @@ class Kranjska_gora_hero extends Widget_Base {
 	}
 
 	public function get_categories() {
-
 		return [ WIDGETS_CATEGORY_KEY ];
 	}
 
-	protected function _register_controls() {
+	public function get_repeater_fields_translation_class()
+	{
+		return false;
+	}
 
-		$controls = [
+	public function widget_controls()
+	{
+		return [
 			"content_tab" => [
 				"type" => "tab",
 				"label" => "Content",
@@ -38,12 +42,20 @@ class Kranjska_gora_hero extends Widget_Base {
 
 			"title" => [
 				'label' => 'Title',
-		        'type'  => Controls_Manager::TEXTAREA,
+				'type'  => Controls_Manager::TEXTAREA,
+				'translatable' => [
+					'type' => "Hero title",
+					'editor_type' => 'AREA' // LINE, AREA or VISUAL
+				]
 			],
 
 			"subtitle" => [
 				'label' => 'Subtitle',
-		        'type'  => Controls_Manager::TEXTAREA,
+				'type'  => Controls_Manager::TEXTAREA,
+				'translatable' => [
+					'type' => 'Hero subtitle',
+	            	'editor_type' => 'AREA'
+				]
 			],
 
 			'hr' => [
@@ -60,8 +72,11 @@ class Kranjska_gora_hero extends Widget_Base {
 				"type" => "end_tab"
 			]
 		];
+	}
 
-		foreach ($controls as $key => $control) {
+	protected function _register_controls() {
+
+		foreach ($this->widget_controls() as $key => $control) {
 			switch ($control["type"]) {
 				case 'tab':
 					$this->start_controls_section($key, $control);
@@ -78,26 +93,32 @@ class Kranjska_gora_hero extends Widget_Base {
 
 	public function translatable()
 	{
+		$controls = $this->widget_controls();
+		$translatable_fields = [];
 
-		$arr = [
-	         'conditions' => [ 'widgetType' => $this->get_name() ],
-	         'fields'     => [
-	            [
-	               'field'       => 'title',
-	               'type'        => __( 'Hero title', 'parsek-elements' ),
-	               'editor_type' => 'AREA'
-	            ],
-	            [
-	               'field'       => 'subtitle',
-	               'type'        => __( 'Hero subtitle', 'parsek-elements' ),
-	               'editor_type' => 'AREA'
-	            ]
-	         ]
-	      ];
-	    return $arr;
+		foreach ($controls as $key => $control) {
+			if (isset($control["translatable"])) {
+				$translatable_field = [
+					"field" => $key,
+					"type" => $control["translatable"]["type"],
+					"editor_type" => $control["translatable"]["editor_type"],
+				];
+				array_push($translatable_fields, $translatable_field);
+			}
+		}
+
+		$translatable_array = [
+			'conditions' => [ 'widgetType' => $this->get_name() ],
+			'fields' => $translatable_fields
+		];
+
+		$intergation_class = $this->get_repeater_fields_translation_class();
+		if ($intergation_class) $translatable_array["integration-class"] = $intergation_class;
+
+	    return $translatable_array;
 	}
 
 	protected function render() {
-		require PCEW_PATH . '/elements/hero/view.php';
+		require PCEW_PATH . '/elements/'.$this->get_name().'/view.php';
 	}
 }
