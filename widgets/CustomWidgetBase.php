@@ -1,4 +1,5 @@
 <?php
+
 use Elementor\Group_Control_Border;
 use Elementor\Widget_Base;
 use Elementor\Repeater;
@@ -6,99 +7,32 @@ use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Elementor\Scheme_Typography;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
-class Kranjska_gora_hero extends Widget_Base {
+class CustomWidgetBase extends Widget_Base {
 
 	public function get_name() {
-		return 'hero';
+		return $this->name;
 	}
 
 	public function get_title() {
-		return 'Hero';
+		return $this->title;
 	}
 
 	public function get_icon() {
-		return 'eicon-image-before-after';
+		return isset($this->icon) ? $this->icon : "fa fa-puzzle";
 	}
 
 	public function get_categories() {
-		return [ WIDGETS_CATEGORY_KEY ];
+		return isset($this->categories) ? $this->categories : [CUSTOM_WIDGETS_CATEGORY_KEY];
 	}
 
 	public function get_repeater_fields_translation_class()
 	{
-		require_once("Icon_list_translation.php");
-		return "Icon_list_translation";
-	}
-
-	public function widget_controls()
-	{
-		return [
-			"content_tab" => [
-				"type" => "tab",
-				"label" => "Content",
-				"tab" => Controls_Manager::TAB_CONTENT,
-			],
-
-			"title" => [
-				'label' => 'Title',
-				'type'  => Controls_Manager::TEXTAREA,
-				'translatable' => [
-					'type' => "Hero title",
-					'editor_type' => 'AREA' // LINE, AREA or VISUAL
-				]
-			],
-
-			"subtitle" => [
-				'label' => 'Subtitle',
-				'type'  => Controls_Manager::TEXTAREA,
-				'translatable' => [
-					'type' => 'Hero subtitle',
-	            	'editor_type' => 'AREA'
-				]
-			],
-
-			"search_placeholder" => [
-				'label' => 'Search text',
-				'type'  => Controls_Manager::TEXTAREA,
-				'translatable' => [
-					'type' => 'Hero search text',
-	            	'editor_type' => 'AREA'
-				]
-			],
-
-			'images' => [
-				'label' => "Background images",
-				'type' => Controls_Manager::GALLERY,
-			],
-
-			"icon_list" => [
-				"label" => "Icons",
-				"type" => "repeater",
-				"field_title" => "icon_label",
-				"translation_class" => "Icon_list_translation",
-				"fields" => [
-					"icon_image" => [
-						"label" => "Icon image",
-						"type" => Controls_Manager::MEDIA
-					],
-					"icon_label" => [
-						"label" => "Icon label",
-						"type" => Controls_Manager::TEXT
-					]
-				]
-			],
-
-			"end_tab" => [
-				"type" => "end_tab"
-			]
-		];
+        return isset($this->integrationClass) && $this->integrationClass ? $this->integrationClass : false;
 	}
 
 	protected function _register_controls() {
 
-		foreach ($this->widget_controls() as $key => $control) {
+		foreach ($this->controls as $key => $control) {
 			switch ($control["type"]) {
 				case 'tab':
 					$this->start_controls_section($key, $control);
@@ -121,6 +55,7 @@ class Kranjska_gora_hero extends Widget_Base {
 						"type" => Controls_Manager::REPEATER,
 						"fields" => $repeater->get_controls(),
 						'title_field' => '{{{ '.$control["field_title"].' }}}',
+						'prevent_empty' => $control["prevent_empty"]
 					]);
 
 					break;
@@ -131,9 +66,9 @@ class Kranjska_gora_hero extends Widget_Base {
 		}
 	}
 
-	public function translatable()
+	protected function translatable()
 	{
-		$controls = $this->widget_controls();
+		$controls = $this->controls;
 		$translatable_fields = [];
 
 		foreach ($controls as $key => $control) {
@@ -158,7 +93,7 @@ class Kranjska_gora_hero extends Widget_Base {
 	    return $translatable_array;
 	}
 
-	protected function render() {
-		require PCEW_PATH . '/elements/'.$this->get_name().'/view.php';
+	public function render() {
+		require $this->view;
 	}
 }

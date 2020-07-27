@@ -11,16 +11,11 @@
   if ( ! defined( 'ABSPATH' ) ) exit;
 
   define("PCEW_PATH", plugin_dir_path( __FILE__ ));
-  define("WIDGETS_CATEGORY_KEY", 'krg');
+  define("CUSTOM_WIDGETS_CATEGORY_KEY", 'krg');
 
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
-
-  if (class_exists("WPML_Elementor_Module_With_Items")) {
-    require_once(__DIR__."/classes/Boxes_fields.php");
-  }
-
 
   class Kranjska_gora_elementor_widgets {
 
@@ -41,10 +36,11 @@
   add_filter( 'wpml_elementor_widgets_to_translate', [ $this, 'wpml_widgets_to_translate_filter' ] );
 }
 
-public function get_elements()
+public function get_custom_widgets()
 {
  return [
-    "hero"
+    "Test",
+    "Hero"
   ];
 }
 
@@ -56,14 +52,14 @@ public function widgets_registered() {
     // We look for any theme overrides for this custom Elementor element.
     // If no theme overrides are found we use the default one in this plugin.
 
-   $elements = $this->get_elements();
+   $widgets = $this->get_custom_widgets();
 
-   foreach ($elements as $element_name) {
-    $widget_file = PCEW_PATH . 'elements/'.$element_name.'/config.php';
+   foreach ($widgets as $widget_name) {
+    $widget_file = PCEW_PATH . 'widgets/'.$widget_name.'/'.$widget_name.'.php';
     if ( $widget_file && is_readable( $widget_file ) ) {
      require_once $widget_file;
 
-     $class_name = "Kranjska_gora_".$element_name;
+     $class_name = $widget_name;
      \Elementor\Plugin::instance()->widgets_manager->register_widget_type( new $class_name );
    }
  }
@@ -80,14 +76,14 @@ public function widget_scripts()
 public function wpml_widgets_to_translate_filter($widgets)
 {
 
-  $elements = $this->get_elements();
+  $widgets = $this->get_custom_widgets();
 
-  foreach ($elements as $element_name) {
-    $widget_file = PCEW_PATH . 'elements/'.$element_name.'/config.php';
+  foreach ($widgets as $widget_name) {
+    $widget_file = PCEW_PATH . 'widgets/'.$widget_name.'/'.$widget_name.'.php';
     if ( $widget_file && is_readable( $widget_file ) ) {
       require_once $widget_file;
 
-      $class_name = "Kranjska_gora_".$element_name;
+      $class_name = $widget_name;
       $widget = new $class_name;
 
       $widget_fields = $widget->translatable();
@@ -102,7 +98,7 @@ public function wpml_widgets_to_translate_filter($widgets)
   public function add_custom_elementor_category($elements_manager){
 
     $elements_manager->add_category(
-      WIDGETS_CATEGORY_KEY,
+      CUSTOM_WIDGETS_CATEGORY_KEY,
       [
         'title' => 'Kranjska Gora',
         'icon'  => 'fa fa-plug',
@@ -111,10 +107,10 @@ public function wpml_widgets_to_translate_filter($widgets)
       
       $reorder_cats = function() {
           uksort($this->categories, function($keyOne, $keyTwo){
-              if(substr($keyOne, 0, 4) == WIDGETS_CATEGORY_KEY){
+              if(substr($keyOne, 0, 4) == CUSTOM_WIDGETS_CATEGORY_KEY){
                   return -1;
               }
-              if(substr($keyTwo, 0, 4) == WIDGETS_CATEGORY_KEY){
+              if(substr($keyTwo, 0, 4) == CUSTOM_WIDGETS_CATEGORY_KEY){
                   return 1;
               }
               return 0;

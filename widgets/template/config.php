@@ -28,8 +28,7 @@ class Kranjska_gora_hero extends Widget_Base {
 
 	public function get_repeater_fields_translation_class()
 	{
-		require_once("Icon_list_translation.php");
-		return "Icon_list_translation";
+		return false;
 	}
 
 	public function widget_controls()
@@ -59,35 +58,14 @@ class Kranjska_gora_hero extends Widget_Base {
 				]
 			],
 
-			"search_placeholder" => [
-				'label' => 'Search text',
-				'type'  => Controls_Manager::TEXTAREA,
-				'translatable' => [
-					'type' => 'Hero search text',
-	            	'editor_type' => 'AREA'
-				]
+			'hr' => [
+				'type' => \Elementor\Controls_Manager::DIVIDER,
+				'style' => 'thick',
 			],
 
 			'images' => [
 				'label' => "Background images",
 				'type' => Controls_Manager::GALLERY,
-			],
-
-			"icon_list" => [
-				"label" => "Icons",
-				"type" => "repeater",
-				"field_title" => "icon_label",
-				"translation_class" => "Icon_list_translation",
-				"fields" => [
-					"icon_image" => [
-						"label" => "Icon image",
-						"type" => Controls_Manager::MEDIA
-					],
-					"icon_label" => [
-						"label" => "Icon label",
-						"type" => Controls_Manager::TEXT
-					]
-				]
 			],
 
 			"end_tab" => [
@@ -105,24 +83,6 @@ class Kranjska_gora_hero extends Widget_Base {
 					break;
 				case 'end_tab':
 					$this->end_controls_section();
-					break;
-				case 'repeater':
-					$repeater = new Repeater();
-					foreach ($control["fields"] as $key => $field_control) {
-						$repeater->add_control($key, $field_control);
-						if (isset($field_control["translatable"]) && $field_control["translatable"]) {
-							if (!$this->get_repeater_fields_translation_class()) {
-								echo "<div style='position:fixed; z-index:55; top:0; color:white; padding:5px; background-color:red;'>You should provide integration class for all repeater fields in <strong>".$this->get_name()."</strong> widget.</div>";
-							}
-						}
-					}
-					$this->add_control($key, [
-						"label" => $control["label"],
-						"type" => Controls_Manager::REPEATER,
-						"fields" => $repeater->get_controls(),
-						'title_field' => '{{{ '.$control["field_title"].' }}}',
-					]);
-
 					break;
 				default:
 					$this->add_control($key, $control);
