@@ -37,7 +37,7 @@
 
           add_action('elementor/elements/categories_registered', array( $this, 'add_custom_elementor_category' ));
           add_action('elementor/widgets/widgets_registered', [ $this, 'widgets_registered' ]);
-
+          add_action('elementor/controls/controls_registered', [$this, 'init_controls']);
           add_filter('wpml_elementor_widgets_to_translate', [ $this, 'wpml_widgets_to_translate_filter' ]);
       }
 
@@ -47,6 +47,15 @@
     "Test",
     "Hero"
   ];
+      }
+
+      public function init_controls()
+      {
+          // Include Widget files
+          require_once __DIR__ . '/controls/file-select/fileselect-control.php';
+
+          // Register controls
+          \Elementor\Plugin::$instance->controls_manager->register_control('file-select', new \FileSelect_Control());
       }
 
       public function widgets_registered()
